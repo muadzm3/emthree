@@ -388,7 +388,7 @@ export default function LandingPage() {
             EmThree.
           </Link>
           <p>Mind, Mindset, Mastery.</p>
-          <p>© {new Date().getFullYear()} EmThree</p>
+          <p>© 2026 EmThree</p>
         </div>
       </footer>
 

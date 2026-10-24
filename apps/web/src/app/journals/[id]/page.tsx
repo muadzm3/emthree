@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import JournalContent from "@/components/JournalContent";
@@ -19,7 +18,7 @@ type Journal = {
   updatedAt: string;
 };
 
-export default function JournalDetailPage() {
+function JournalDetailContent() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
 
@@ -132,7 +131,6 @@ export default function JournalDetailPage() {
 
   return (
     <main className="min-h-screen bg-[#faf9f6] text-stone-900 transition-colors duration-300 dark:bg-[#171717] dark:text-stone-100">
-      {/* Header */}
       <header className="border-b border-stone-200 bg-transparent dark:border-neutral-800">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
           <Link
@@ -157,7 +155,6 @@ export default function JournalDetailPage() {
         </div>
       </header>
 
-      {/* Isi jurnal */}
       <article className="mx-auto max-w-3xl px-5 py-10 sm:px-8 sm:py-16">
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <span
@@ -206,7 +203,7 @@ export default function JournalDetailPage() {
             href="/dashboard"
             className="text-sm font-medium text-emerald-800 transition hover:text-emerald-950 dark:text-emerald-400 dark:hover:text-emerald-300"
           >
-           Kembali ke semua jurnal
+            Kembali ke semua jurnal
           </Link>
         </div>
       </article>
@@ -215,5 +212,21 @@ export default function JournalDetailPage() {
         EmThree — Mind, Mindset, Mastery
       </footer>
     </main>
+  );
+}
+
+export default function JournalDetailPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-[#faf9f6] dark:bg-[#171717]">
+          <p className="text-sm text-stone-500 dark:text-stone-400">
+            Memuat jurnal...
+          </p>
+        </main>
+      }
+    >
+      <JournalDetailContent />
+    </Suspense>
   );
 }

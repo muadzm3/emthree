@@ -1,11 +1,10 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import JournalInteractions from "../../../../components/JournalInteractions";
-import JournalPreview from "@/components/JournalPreview";
 import JournalContent from "@/components/JournalContent";
 
 type PublicJournal = {
@@ -23,7 +22,7 @@ type PublicJournal = {
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
-export default function PublicJournalDetailPage() {
+function PublicJournalDetailContent() {
   const params = useParams<{ id: string }>();
   const id = params.id;
 
@@ -33,6 +32,8 @@ export default function PublicJournalDetailPage() {
 
   useEffect(() => {
     if (!id) return;
+
+    let cancelled = false;
 
     async function fetchJournal() {
       try {
@@ -51,27 +52,36 @@ export default function PublicJournalDetailPage() {
         }
 
         const data = await response.json();
-        setJournal(data.journal);
+
+        if (!cancelled) {
+          setJournal(data.journal);
+        }
       } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Terjadi kesalahan saat mengambil jurnal."
-        );
+        if (!cancelled) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Terjadi kesalahan saat mengambil jurnal."
+          );
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
     fetchJournal();
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   return (
     <main className="min-h-screen bg-[#faf9f6] text-stone-900 transition-colors duration-300 dark:bg-[#171717] dark:text-stone-100">
-      {/* Header */}
       <header className="border-b border-stone-200 bg-transparent dark:border-neutral-800">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-5 sm:px-8">
-
           <Link
             href="/explore"
             className="text-sm font-semibold text-emerald-800 transition hover:text-emerald-950 dark:text-emerald-400 dark:hover:text-emerald-300"
@@ -81,7 +91,6 @@ export default function PublicJournalDetailPage() {
         </div>
       </header>
 
-      {/* Isi jurnal */}
       <article className="mx-auto max-w-3xl px-5 py-10 sm:px-8 sm:py-16">
         {loading ? (
           <p className="py-16 text-center text-stone-500 dark:text-stone-400">
@@ -133,7 +142,7 @@ export default function PublicJournalDetailPage() {
               })}
             </div>
 
-            <div className="mt-8 whitespace-pre-wrap break-words text-base leading-8 text-stone-700 sm:text-lg sm:leading-9 dark:text-stone-200">
+            <div className="mt-8 break-words text-base leading-8 text-stone-700 sm:text-lg sm:leading-9 dark:text-stone-200">
               <JournalContent content={journal.content} />
             </div>
 
@@ -153,10 +162,25 @@ export default function PublicJournalDetailPage() {
         ) : null}
       </article>
 
-      {/* Footer */}
       <footer className="border-t border-stone-200 px-5 py-6 text-center text-sm text-stone-500 dark:border-neutral-800 dark:text-stone-400">
         EmThree — ruang untuk menulis dan berbagi cerita.
       </footer>
     </main>
+  );
+}
+
+export default function PublicJournalDetailPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-[#faf9f6] dark:bg-[#171717]">
+          <p className="text-sm text-stone-500 dark:text-stone-400">
+            Memuat jurnal...
+          </p>
+        </main>
+      }
+    >
+      <PublicJournalDetailContent />
+    </Suspense>
   );
 }

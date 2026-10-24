@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Suspense } from "react";
 
 const menus = [
   { label: "Dashboard", href: "/dashboard", icon: "⌂" },
@@ -12,7 +13,7 @@ const menus = [
   { label: "Profil", href: "/profile", icon: "⚙" },
 ];
 
-export default function Sidebar() {
+function SidebarContent() {
   const pathname = usePathname();
 
   return (
@@ -21,7 +22,7 @@ export default function Sidebar() {
         Menu utama
       </p>
 
-      <nav className="space-y-2 mb-6">
+      <nav className="mb-6 space-y-2">
         {menus.map((menu) => {
           const active =
             pathname === menu.href ||
@@ -44,8 +45,6 @@ export default function Sidebar() {
         })}
       </nav>
 
-
-
       <div className="mt-auto rounded-2xl bg-emerald-900 p-5 text-white">
         <p className="font-semibold">Ruang untuk ceritamu.</p>
         <p className="mt-2 text-sm leading-6 text-emerald-100">
@@ -53,5 +52,13 @@ export default function Sidebar() {
         </p>
       </div>
     </aside>
+  );
+}
+
+export default function Sidebar() {
+  return (
+    <Suspense fallback={null}>
+      <SidebarContent />
+    </Suspense>
   );
 }

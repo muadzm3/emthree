@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import RichTextEditor from "@/components/RichTextEditor";
@@ -9,7 +8,7 @@ import RichTextEditor from "@/components/RichTextEditor";
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
-export default function NewJournalPage() {
+function NewJournalContent() {
   const router = useRouter();
 
   const [title, setTitle] = useState("");
@@ -23,10 +22,10 @@ export default function NewJournalPage() {
     event.preventDefault();
     setMessage("");
 
-      const plainText = content
-    .replace(/<[^>]*>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .trim();
+    const plainText = content
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .trim();
 
     if (!title.trim() || (!plainText && !content.includes("<img"))) {
       setMessage("Judul dan isi jurnal tidak boleh kosong.");
@@ -51,7 +50,7 @@ export default function NewJournalPage() {
         },
         body: JSON.stringify({
           title: title.trim(),
-          content: 
+          content,
           status,
           visibility,
         }),
@@ -82,7 +81,6 @@ export default function NewJournalPage() {
 
   return (
     <main className="min-h-screen bg-[#faf9f6] text-stone-900 transition-colors duration-300 dark:bg-[#171717] dark:text-stone-100">
-      {/* Header */}
       <header className="sticky top-0 z-10 border-b border-stone-200 bg-[#faf9f6]/95 backdrop-blur dark:border-neutral-800 dark:bg-[#171717]/95">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
           <Link
@@ -108,7 +106,6 @@ export default function NewJournalPage() {
       </header>
 
       <div className="mx-auto grid max-w-6xl gap-8 px-5 py-8 sm:px-8 sm:py-12 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-12">
-        {/* Editor utama */}
         <section className="min-w-0">
           <div className="mb-8">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-400">
@@ -145,14 +142,11 @@ export default function NewJournalPage() {
               />
 
               <div className="mt-7">
-                <label
-                  htmlFor="content"
-                  className="mb-3 block text-sm font-semibold text-stone-700 dark:text-stone-200"
-                >
+                <label className="mb-3 block text-sm font-semibold text-stone-700 dark:text-stone-200">
                   Ceritamu
                 </label>
 
-                 <RichTextEditor onChange={setContent} />
+                <RichTextEditor onChange={setContent} />
 
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-stone-100 pt-4 text-xs text-stone-500 dark:border-neutral-800 dark:text-stone-400">
                   <span>Luangkan waktu untuk dirimu sendiri.</span>
@@ -191,7 +185,6 @@ export default function NewJournalPage() {
           </form>
         </section>
 
-        {/* Panel pengaturan */}
         <aside className="space-y-5 lg:pt-1">
           <div className="rounded-2xl border border-stone-200 bg-white p-6 dark:border-neutral-800 dark:bg-[#202020]">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-400">
@@ -199,10 +192,7 @@ export default function NewJournalPage() {
             </p>
 
             <div className="mt-5">
-              <label
-                htmlFor="status"
-                className="mb-2 block text-sm font-semibold"
-              >
+              <label htmlFor="status" className="mb-2 block text-sm font-semibold">
                 Status
               </label>
 
@@ -224,10 +214,7 @@ export default function NewJournalPage() {
             </div>
 
             <div className="mt-5">
-              <label
-                htmlFor="visibility"
-                className="mb-2 block text-sm font-semibold"
-              >
+              <label htmlFor="visibility" className="mb-2 block text-sm font-semibold">
                 Visibilitas
               </label>
 
@@ -256,8 +243,7 @@ export default function NewJournalPage() {
             </p>
 
             <p className="mt-3 text-lg font-semibold leading-7">
-              Tulisan sederhana hari ini bisa menjadi kenangan berharga esok
-              hari.
+              Tulisan sederhana hari ini bisa menjadi kenangan berharga esok hari.
             </p>
           </div>
 
@@ -268,5 +254,21 @@ export default function NewJournalPage() {
         </aside>
       </div>
     </main>
+  );
+}
+
+export default function NewJournalPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-[#faf9f6] dark:bg-[#171717]">
+          <p className="text-sm text-stone-500 dark:text-stone-400">
+            Memuat editor jurnal...
+          </p>
+        </main>
+      }
+    >
+      <NewJournalContent />
+    </Suspense>
   );
 }

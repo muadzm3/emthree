@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import JournalPreview from "@/components/JournalPreview";
+
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
@@ -20,7 +21,7 @@ type Author = {
   name: string;
 };
 
-export default function AuthorProfilePage() {
+function AuthorProfileContent() {
   const params = useParams<{ id: string }>();
   const id = params.id;
 
@@ -131,9 +132,9 @@ export default function AuthorProfilePage() {
                     </Link>
                   </h3>
 
-                  <p className="mt-3 whitespace-pre-wrap break-words leading-7 text-gray-600 dark:text-neutral-300">
+                  <div className="mt-3 whitespace-pre-wrap break-words leading-7 text-gray-600 dark:text-neutral-300">
                     <JournalPreview content={journal.content} />
-                  </p>
+                  </div>
 
                   <p className="mt-4 text-xs text-gray-500 dark:text-neutral-500">
                     Diperbarui{" "}
@@ -160,5 +161,19 @@ export default function AuthorProfilePage() {
         </section>
       </div>
     </main>
+  );
+}
+
+export default function AuthorProfilePage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#faf9f6] p-10 text-stone-500 dark:bg-neutral-950 dark:text-neutral-400">
+          Memuat profil...
+        </main>
+      }
+    >
+      <AuthorProfileContent />
+    </Suspense>
   );
 }

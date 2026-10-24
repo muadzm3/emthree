@@ -413,3 +413,12 @@ function EditJournalContent() {
     </main>
   );
 }
+
+export default function EditJournalPage() {
+  return (
+    <Suspense fallback={<div>Memuat editor jurnal...</div>}>
+      <EditJournalContent />
+    </Suspense>
+  );
+}
+
