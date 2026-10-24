@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String            @id @default(uuid())
+  name             String
+  email            String            @unique
+  passwordHash     String?
+  avatarUrl        String?
+  role             String            @default("USER")
+  journals         Journal[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  journalLikes     JournalLike[]
+  journalComments  JournalComment[]
+  journalBookmarks JournalBookmark[]
+}
+
+model Journal {
+  id         String            @id @default(uuid())
+  userId     String
+  title      String
+  content    String            @db.Text
+  status     String            @default("DRAFT")
+  visibility String            @default("PRIVATE")
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  likes      JournalLike[]
+  comments   JournalComment[]
+  bookmarks  JournalBookmark[]
+
+  @@index([userId, updatedAt])
+  @@index([status, visibility, createdAt])
+}
+
+model JournalLike {
+  id        String   @id @default(uuid())
+  userId    String
+  journalId String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  journal   Journal  @relation(fields: [journalId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, journalId])
+  @@index([journalId])
+}
+
+model JournalComment {
+  id        String   @id @default(uuid())
+  userId    String
+  journalId String
+  content   String   @db.Text
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  journal   Journal  @relation(fields: [journalId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([journalId, createdAt])
+  @@index([userId])
+}
+
+model JournalBookmark {
+  id        String   @id @default(uuid())
+  userId    String
+  journalId String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  journal   Journal  @relation(fields: [journalId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, journalId])
+  @@index([userId, createdAt])
+}
