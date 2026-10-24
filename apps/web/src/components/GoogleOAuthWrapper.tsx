@@ -11,7 +11,11 @@ export default function GoogleOAuthWrapper({
   const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
   if (!clientId) {
-    return <>{children}</>;
+    return (
+      <p className="text-sm text-stone-500">
+        Login Google belum dikonfigurasi.
+      </p>
+    );
   }
 
   return (
