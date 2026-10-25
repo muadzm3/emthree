@@ -7,6 +7,10 @@ type Props = {
   content: string;
 };
 
+const API_URL = (
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+).replace(/\/+$/, "");
+
 export default function JournalPreview({ content }: Props) {
   const safeHtml = DOMPurify.sanitize(content, {
     USE_PROFILES: { html: true },
@@ -18,20 +22,25 @@ export default function JournalPreview({ content }: Props) {
   const image = documentHtml.querySelector("img");
   const imageSrc = image?.getAttribute("src");
 
+  const resolvedImageSrc = imageSrc?.replace(
+    /^https?:\/\/localhost:3001(?=\/uploads\/)/,
+    API_URL
+  );
+
   const text = documentHtml.body.textContent?.trim() || "";
 
   return (
     <div className="mt-4 flex items-start gap-4">
-      {imageSrc && (
+      {resolvedImageSrc && (
         <div className="h-32 w-32 shrink-0 overflow-hidden rounded-xl bg-neutral-800 sm:h-36 sm:w-36">
           <img
-            src={imageSrc}
+            src={resolvedImageSrc}
             alt={image?.getAttribute("alt") || "Gambar jurnal"}
             className="block h-full w-full object-cover"
             onError={(event) => {
               console.error(
                 "Gagal memuat gambar jurnal:",
-                imageSrc,
+                resolvedImageSrc,
                 event.currentTarget
               );
             }}
