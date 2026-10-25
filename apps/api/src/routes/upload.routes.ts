@@ -7,7 +7,11 @@ import crypto from "crypto";
 
 const router = Router();
 
-const uploadDir = path.resolve(process.cwd(), "uploads");
+const isVercel = process.env.VERCEL === "1";
+
+const uploadDir = isVercel
+  ? "/tmp/uploads"
+  : path.resolve(process.cwd(), "uploads");
 
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
